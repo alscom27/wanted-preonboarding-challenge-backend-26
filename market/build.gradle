@@ -1,0 +1,101 @@
+buildscript {
+	ext {
+		queryDslVersion = "5.0.0"
+	}
+}
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.18'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+}
+
+group = 'com.wanted'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+// https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-java8time
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-java8time'
+// https://mvnrepository.com/artifact/nz.net.ultraq.thymeleaf/thymeleaf-layout-dialect
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.0.0'
+// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+// https://mvnrepository.com/artifact/org.modelmapper/modelmapper
+	implementation 'org.modelmapper:modelmapper:3.2.1'
+//querydsl 추가
+	implementation "com.querydsl:querydsl-jpa:5.0.0" // querydsl 라이브러리
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0" //  Querydsl 관련 코드 생성 기능 제공
+
+	// jackson
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+	// json
+	implementation 'org.json:json:20210307'
+
+	implementation 'com.h2database:h2'
+
+	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security 의존성 추가
+
+	testImplementation 'org.springframework.security:spring-security-test' // Spring Security 테스트 의존성 추가
+
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'	// 로그인 객체 권한 줄수있는 애
+
+	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
+}
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+
+
+
+def querydslDir = "$buildDir/generated/querydsl" //QueryDSL로 생성된 소스가 저장되는 위치
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+	main.java.srcDir querydslDir
+}
+
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
+}
